@@ -1,6 +1,6 @@
 %% 1b -- Visualisering
 
-% Er kod här...
+load 
 
 
 %% 1c -- Beräkning av största och minsta egenvärdena
