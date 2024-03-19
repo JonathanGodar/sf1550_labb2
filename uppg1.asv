@@ -18,7 +18,7 @@ end
 
 %% Animering
 
-y = eigen_vectors_matrix(:, sort_order(2))
+y = eigen_vectors_matrix(:, sort_order(2));
 trussanim(xnod, ynod, bars, y);
 
 %% 1c -- Ber�kning av st�rsta och minsta egenv�rdena
@@ -34,6 +34,7 @@ trussanim(xnod, ynod, bars, y);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function [mu, iter] = potens(A,tau)
+
 %  Indata:
 %
 %  A  - matrisen (kvadratisk)
@@ -43,18 +44,9 @@ function [mu, iter] = potens(A,tau)
 %
 %  mu - st�rsta egenv�rdet till A (skal�r)
 %  iter - antal iterationer som anv�nts (skal�r)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	y = rand(size(A, 2), 1)
-	iter = 0
-	mu = 0
-	mu_prev = tolerance * 20
-	while abs(mu - mu_prev) > tau
-		iter = iter + 1;
-		v = A * y;
-		mu_prev = mu;
-		mu = y' * v;
-		y = v / norm(v);
-	end
+% Er kod h�r...
 
 end
 
