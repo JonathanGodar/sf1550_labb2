@@ -3,7 +3,7 @@ format long
 load eiffel1
 
 
-[eigen_vectors_matris, eigen_values_matrix] = eig(A);
+[eigen_vectors_matrix, eigen_values_matrix] = eig(A);
 
 eigen_values = diag(eigen_values_matrix);
 [eigen_values, sort_order] = sort(eigen_values);
@@ -12,15 +12,15 @@ disp(eigen_values(1))
 for i = 1:4 % vector_idx = sort_order[1,4]
 	figure(i);
 	vector_idx = sort_order(i);
-	y = eigen_vectors_matrix(vector_idx, :) %#:, vector_idx) * 1;
+	y = eigen_vectors_matrix(:, vector_idx); 
 	trussplot(xnod + y(1:2:end), ynod + y(2:2:end), bars);
 	break
 end
 
 %% Animering
 
-y = eigen_vectors_matrix(:, sort_order(2))
-trussanim(xnod, ynod, bars, y);
+y = eigen_vectors_matrix(:, sort_order(1));
+trussanim(xnod, ynod, bars, y*1);
 
 %% 1c -- Beräkning av största och minsta egenvärdena
 tau = 1e-10;
@@ -67,13 +67,15 @@ disp(table)
 %% 1d -- Beräkning av andra egenvärden
 
 % Er kod här...
-sigmaArray = [10, 50 67];
+tau = 1e-10;
+sigmaArray = [10, 50, 67];
 for sigma = sigmaArray
-	[mu,iter] = inverspotens(A - sigma);
-	closestEgeinvalueToSigma = 1/mu + sigma;
-	disp(sigma, closestEgeinvalueToSigma, iter)
+	[mu,iter] = inverspotens(A - sigma * eye(size(A,1)), tau);
+	closestEigenvalueToSigma = 1/mu + sigma;
+	disp([sigma, closestEigenvalueToSigma, iter])
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
 
 function [mu, iter] = potens(A,tau)
 %  Indata:
