@@ -1,58 +1,96 @@
 
 load dollarkurs.mat
-X = USDSEK';
-N = length(X);
+U = USDSEK';
+N = length(U);
 tt=(1:N)';
-days = 1:1:N;
+t = 1:1:N;
 
 %% 3a Linjär modell
-
 % Er kod här...
 
-hold on
-coefficients = least_square_polynomial(days, X, 1);
+f = @(x) [1 x]
+plot_and_check_model(t, U, f)
 
-
-model = evaluate_polynomial_at(coefficients', days)';
-error = model - X;
-
-grid on
-plot(days, X); 
-plot(days, model);
-plot(days, error);
-
-average_square_error = calculate_average_square_error(X,model)
 
 %% 3b Linjär + periodisk modell
-% coefficients = least_square_custom(days, X, 1);
+% coefficients = least_square_custom(t, X, 1);
+% Perioden ser ut att vara ca 430
 L = 430;
 f = @(x) [1 x sin(2* pi * x / L) cos(2*pi * x /L)];
-plot_and_check_model(f)
-
-% Perioden ser ut att vara ca 430
-
-% Er kod här...
+X = [plot_and_check_model(t, U, f); L]
 
 
 %% 3c Icke-linjär modell
+% Er kod här...
+
+Xprev = 10 + X 
+tau = 1e-8
+
+while norm(Xprev-X) > tau
+    Xprev = X 
+    X = X - (J(X,U)'*J(X,U))^-1*J(X,U)'*F(X,U);
+end
+
+f = @(x) [1 x sin(2* pi * x / L) cos(2*pi * x /L)];
+
+X
+model = make_model(X,U);
 
 
-function plot_and_check_model(f)
-    coeffs = least_square(days, X, f);
+error = model - U;
+grid on
+plot(t, U);
+hold on
+plot(t, model);
+plot(t, error);
+
+
+calculate_average_square_error(model,U)
+%%
+
+function F_vec = F(X, y)
+    F_vec = []
+    for t = 1:size(y,2)
+        row = [X(1) + X(2)*t + X(3) * sin(2*pi*t/X(5)) + X(4)*cos(2*pi*t/X(5)) - y(t)];
+        F_vec = [F_vec; row];
+    end
+end
+
+function F_vec = make_model(X, y)
+    F_vec = []
+    for t = 1:size(y,2)
+        row = [X(1) + X(2)*t + X(3) * sin(2*pi*t/X(5)) + X(4)*cos(2*pi*t/X(5))];
+        F_vec = [F_vec; row];
+    end
+end
+
+
+function F_jacobian= J(X, y)
+    F_jacobian = []
+    for t = 1:size(y,2)
+        row = [1 t  sin(2*pi*t/X(5)) cos(2*pi*t/X(5)) (X(4)*sin(2*pi*t/X(5)) - X(3)*cos(2*pi*t/X(5))) * 2*pi*t/(X(5)^2) ];
+        F_jacobian = [F_jacobian; row];
+    end
+end
+
+
+function coeffs = plot_and_check_model(x_values, y_values, f)
+    coeffs = least_square(x_values, y_values, f);
 
     model = [];
-    for day = days 
-        model = [model, f(day)*coeffs];
+    for x = x_values 
+        model = [model, f(x)*coeffs];
     end
-    % model = f_excplict(days)
-
-    error = model - X;
+    % model = f_excplict(y_values)
+    error = model - y_values;
 
     grid on
-    plot(days, X);
+    plot(x_values, y_values);
     hold on
-    plot(days, model);
-    plot(days, error);
+    plot(x_values, model);
+    plot(x_values, error);
+    
+    calculate_average_square_error(model,y_values)
 end
 
 
