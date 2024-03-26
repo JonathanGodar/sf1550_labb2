@@ -6,8 +6,11 @@ h = 0.25; % Får ej ändras i koden nedan
 [t,x,y,vx,vy] = kastbana(h);
 
 %% Linjär interpolation
-
-interps = piecewise_interpolation(x, y, 1)
+x=x';
+y=y';
+degree = 2;
+coefficient_matrix = piecewise_interpolation(x, y, degree);
+plot_interpolation(x, coefficient_matrix, grad);
 
 %% Kvadratisk interpolation
 
@@ -15,37 +18,78 @@ interps = piecewise_interpolation(x, y, 1)
 
 
 %%
+lower_x = 1;
+upper_x = 5;
+grad = 1;
+
+x_points = linspace(lower_x, upper_x, 21);
+y_points = exp(x_points);
+
+x_exact = linspace(lower_x, upper_x, 1000);
+y_exact = exp(x_exact);
+
+plot(x_exact, y_exact+10)
+hold on
+
+
+coeff = piecewise_interpolation(x_points, y_points, grad);
+plot_interpolation(x_points, coeff, grad)
+
+
+%%
+
+lower_x = 1;
+upper_x = 5;
+grad = 1;
+
+x_points = linspace(lower_x, upper_x, 21);
+y_points = exp(x_points);
+
+x_exact = linspace(lower_x, upper_x, 1000);
+y_exact = exp(x_exact);
+
+plot(x_exact, y_exact+10)
+hold on
+
+
+coeff = piecewise_interpolation(x_points, y_points, grad);
+plot_interpolation(x_points, coeff, grad)
+%%
 
 % c_1, c_2 * x, c_3 *x^2 ...
 function [coeffs] = interpolate(x_points, y_points, grad) 
     val_matrix = [];
+    x_points
+    y_points
     for x_point = x_points  
         row = [];
-        for exponent = 0:grad-1
+        for exponent = 0:grad
             row = [row x_point^exponent];
         end
         val_matrix = [val_matrix; row];
     end
 
-    coeffs = val_matrix\y_points;
+    val_matrix
+    coeffs = val_matrix\y_points';
 end
 
 
 
 function evaluated = evaluate_polynomial_at(coefficients, x_values) 
-    evaluated = []
-    for x_value = x_values'
-        sum = 0
-        for coeff_idx= [1:size(coefficients,1)]
-            sum += coefficients(coeff_idx) * x_value^(coeff_idx-1)
+    evaluated = [];
+    for x_value = x_values
+        sum = 0;
+        for coeff_idx= [1:size(coefficients,2)]
+            sum = sum + coefficients(coeff_idx) * x_value^(coeff_idx-1);
         end
-        evaluated = [evaluated; sum]
+        evaluated = [evaluated; sum];
     end
 end
 
-function [coords_for_apex, x_for_landing] = piecewise_interpolation(x_points, y_points, grad)
+function [coefficent_matrix] = piecewise_interpolation(x_points, y_points, grad)
     coefficent_matrix = [];
-    for index = (size(x_points,1)-1)/(grad)
+    for index = 1:(size(x_points,2)-1)/(grad)
+disp("Looping " + index)
         group_start = (index-1) * grad + 1;
         group_end = index*grad + 1;
         x_points_for_piece = x_points(group_start : group_end);
@@ -55,13 +99,35 @@ function [coords_for_apex, x_for_landing] = piecewise_interpolation(x_points, y_
     end
 end
 
-function = plot_interpolated(x_points,y_points,grad)
+function plot_interpolation(x_points, coefficent_matrix, grad)
     hold on
-    for index = (size(x_points,1)-1)/grad
+    for index = 1:(size(x_points,2)-1)/grad
         group_start = (index-1) * grad + 1;
         group_end = index*grad + 1;
-        x = [x_points(group_start):x_points(group_end)]
+        x = [x_points(group_start):0.05:x_points(group_end)];
+        plot(x,evaluate_polynomial_at(coefficent_matrix(:,index)',x))
     end
+end
+
+function calculate_and_plot_x_for_impact (y_points, coefficent_matrix, grad)
+    for index = (1:size(y_points,2)-1)
+        if y_points(index) >= 0 && y_points(index+1) <=0
+            indexs_for_impact = index;
+        end
+    end
+
+    coefficents_for_relevant_interval = coefficent_matrix(index,:);
+    if grad == 1
+        c = coefficents_for_relevant_interval;
+        x_for_impact = -c(1)/c(2);
+    elseif grad == 2
+        c = coefficents_for_relevant_interval;
+        x_for_impact = (-c(2)+sqrt(c(2)^2-4*c(3)*c(1))/(x*c(3)))
+    else
+        error("Not available grade at the moment, wait for version 31.2")
+    end
+
+    plot(x_for_impact,0,'ro')
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [t,x,y,vx,vy]=kastbana(h)
