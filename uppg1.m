@@ -19,7 +19,7 @@ end
 
 %% Animering
 
-y = eigen_vectors_matrix(:, sort_order(1));
+y = eigen_vectors_matrix(:, sort_order(5));
 trussanim(xnod, ynod, bars, y*1);
 
 %% 1c -- Beräkning av största och minsta egenvärdena

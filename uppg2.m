@@ -2,18 +2,68 @@
 
 h = 0.25; % Får ej ändras i koden nedan
 
+% Er kod här...
+[t,x,y,vx,vy] = kastbana(h);
+
 %% Linjär interpolation
 
-% Er kod här...
-
+interps = piecewise_interpolation(x, y, 1)
 
 %% Kvadratisk interpolation
 
 % Er kod här...
 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
 
+% c_1, c_2 * x, c_3 *x^2 ...
+function [coeffs] = interpolate(x_points, y_points, grad) 
+    val_matrix = [];
+    for x_point = x_points  
+        row = [];
+        for exponent = 0:grad-1
+            row = [row x_point^exponent];
+        end
+        val_matrix = [val_matrix; row];
+    end
+
+    coeffs = val_matrix\y_points;
+end
+
+
+
+function evaluated = evaluate_polynomial_at(coefficients, x_values) 
+    evaluated = []
+    for x_value = x_values'
+        sum = 0
+        for coeff_idx= [1:size(coefficients,1)]
+            sum += coefficients(coeff_idx) * x_value^(coeff_idx-1)
+        end
+        evaluated = [evaluated; sum]
+    end
+end
+
+function [coords_for_apex, x_for_landing] = piecewise_interpolation(x_points, y_points, grad)
+    coefficent_matrix = [];
+    for index = (size(x_points,1)-1)/(grad)
+        group_start = (index-1) * grad + 1;
+        group_end = index*grad + 1;
+        x_points_for_piece = x_points(group_start : group_end);
+        y_points_for_piece = y_points(group_start : group_end);
+        coefficents_for_piece = interpolate(x_points_for_piece,y_points_for_piece,grad);
+        coefficent_matrix = [coefficent_matrix coefficents_for_piece];
+    end
+end
+
+function = plot_interpolated(x_points,y_points,grad)
+    hold on
+    for index = (size(x_points,1)-1)/grad
+        group_start = (index-1) * grad + 1;
+        group_end = index*grad + 1;
+        x = [x_points(group_start):x_points(group_end)]
+    end
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function [t,x,y,vx,vy]=kastbana(h)
 
 %KASTBANA(H) beräknar banan för ett kast med en liten boll.
