@@ -8,9 +8,14 @@ h = 0.25; % Får ej ändras i koden nedan
 %% Linjär interpolation
 x=x';
 y=y';
-degree = 2;
+degree = 1;
+
 coefficient_matrix = piecewise_interpolation(x, y, degree);
-plot_interpolation(x, coefficient_matrix, grad);
+
+plot_interpolation(x, coefficient_matrix, degree);
+
+%%
+calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
 
 %% Kvadratisk interpolation
 
@@ -22,7 +27,7 @@ lower_x = 1;
 upper_x = 5;
 grad = 1;
 
-x_points = linspace(lower_x, upper_x, 21);
+x_points = linspace(lower_x, upper_x, 123);
 y_points = exp(x_points);
 
 x_exact = linspace(lower_x, upper_x, 1000);
@@ -31,9 +36,10 @@ y_exact = exp(x_exact);
 plot(x_exact, y_exact+10)
 hold on
 
-
 coeff = piecewise_interpolation(x_points, y_points, grad);
 plot_interpolation(x_points, coeff, grad)
+
+
 
 
 %%
@@ -59,8 +65,6 @@ plot_interpolation(x_points, coeff, grad)
 % c_1, c_2 * x, c_3 *x^2 ...
 function [coeffs] = interpolate(x_points, y_points, grad) 
     val_matrix = [];
-    x_points
-    y_points
     for x_point = x_points  
         row = [];
         for exponent = 0:grad
@@ -69,7 +73,6 @@ function [coeffs] = interpolate(x_points, y_points, grad)
         val_matrix = [val_matrix; row];
     end
 
-    val_matrix
     coeffs = val_matrix\y_points';
 end
 
@@ -89,7 +92,6 @@ end
 function [coefficent_matrix] = piecewise_interpolation(x_points, y_points, grad)
     coefficent_matrix = [];
     for index = 1:(size(x_points,2)-1)/(grad)
-disp("Looping " + index)
         group_start = (index-1) * grad + 1;
         group_end = index*grad + 1;
         x_points_for_piece = x_points(group_start : group_end);
@@ -101,23 +103,27 @@ end
 
 function plot_interpolation(x_points, coefficent_matrix, grad)
     hold on
+
     for index = 1:(size(x_points,2)-1)/grad
         group_start = (index-1) * grad + 1;
         group_end = index*grad + 1;
-        x = [x_points(group_start):0.05:x_points(group_end)];
+        x = linspace(x_points(group_start), x_points(group_end), 100);
         plot(x,evaluate_polynomial_at(coefficent_matrix(:,index)',x))
     end
 end
 
-function calculate_and_plot_x_for_impact (y_points, coefficent_matrix, grad)
+function calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
     for index = (1:size(y_points,2)-1)
         if y_points(index) >= 0 && y_points(index+1) <=0
             indexs_for_impact = index;
+            plot([0,50],[y_points(index),y_points(index)])
+            plot([0,50],[y_points(index+1),y_points(index+1)])
         end
     end
 
-    coefficents_for_relevant_interval = coefficent_matrix(index,:);
+    coefficents_for_relevant_interval = coefficent_matrix(:,index-1);
     if grad == 1
+        disp("Bannan")
         c = coefficents_for_relevant_interval;
         x_for_impact = -c(1)/c(2);
     elseif grad == 2
