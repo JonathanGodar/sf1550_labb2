@@ -4,42 +4,24 @@ h = 0.25; % Får ej ändras i koden nedan
 
 % Er kod här...
 [t,x,y,vx,vy] = kastbana(h);
-
-%% Linjär interpolation
 x=x';
 y=y';
+
+%% Linjär interpolation
+figure(1)
 degree = 1;
 
 coefficient_matrix = piecewise_interpolation(x, y, degree);
-
 plot_interpolation(x, coefficient_matrix, degree);
 
-%%
 calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
 
 %% Kvadratisk interpolation
-
-% Er kod här...
-
-
-%%
-lower_x = 1;
-upper_x = 5;
-grad = 1;
-
-x_points = linspace(lower_x, upper_x, 123);
-y_points = exp(x_points);
-
-x_exact = linspace(lower_x, upper_x, 1000);
-y_exact = exp(x_exact);
-
-plot(x_exact, y_exact+10)
-hold on
-
-coeff = piecewise_interpolation(x_points, y_points, grad);
-plot_interpolation(x_points, coeff, grad)
-
-
+figure(2)
+degree = 2;
+coefficient_matrix = piecewise_interpolation(x, y, degree);
+plot_interpolation(x, coefficient_matrix, degree);
+calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
 
 
 %%
@@ -116,19 +98,22 @@ function calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
     for index = (1:size(y_points,2)-1)
         if y_points(index) >= 0 && y_points(index+1) <=0
             indexs_for_impact = index;
-            plot([0,50],[y_points(index),y_points(index)])
-            plot([0,50],[y_points(index+1),y_points(index+1)])
+            break
         end
     end
 
-    coefficents_for_relevant_interval = coefficent_matrix(:,index-1);
     if grad == 1
-        disp("Bannan")
+        coefficents_for_relevant_interval = coefficent_matrix(:,index);
         c = coefficents_for_relevant_interval;
         x_for_impact = -c(1)/c(2);
     elseif grad == 2
-        c = coefficents_for_relevant_interval;
-        x_for_impact = (-c(2)+sqrt(c(2)^2-4*c(3)*c(1))/(x*c(3)))
+        polynomial_index = floor((index-1)/ 2) + 1
+    
+        coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
+        c = coefficents_for_relevant_interval
+        
+        % c(3) kommer alltid vara negativ på grund av gravitation :) (hänvisning: mekanik)
+        x_for_impact = ((-c(2)-sqrt(c(2)^2-4*c(3)*c(1)))/(2*c(3)))
     else
         error("Not available grade at the moment, wait for version 31.2")
     end
