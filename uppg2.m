@@ -15,6 +15,7 @@ coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
 
 calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
+calculate_and_plot_apex(y, coefficient_matrix, degree)
 
 %% Kvadratisk interpolation
 figure(2)
@@ -22,6 +23,7 @@ degree = 2;
 coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
 calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
+calculate_and_plot_apex(y, coefficient_matrix, degree)
 
 
 %%
@@ -92,6 +94,34 @@ function plot_interpolation(x_points, coefficent_matrix, grad)
         x = linspace(x_points(group_start), x_points(group_end), 100);
         plot(x,evaluate_polynomial_at(coefficent_matrix(:,index)',x))
     end
+end
+
+function calculate_and_plot_apex(y_points, coefficent_matrix, grad)
+    for index = (1:size(y_points,2)-1)
+        if y_points(index) >= y_points(index+1)
+            indexs_for_impact = index;
+            break
+        end
+    end
+
+    if grad == 1
+        coefficents_for_relevant_interval = coefficent_matrix(:,index);
+        c = coefficents_for_relevant_interval;
+        x_apex = (y_points(index) - c(1))/c(2);
+        y_apex = y_points(index);
+    elseif grad == 2
+        polynomial_index = floor((index-1)/ 2) + 1
+    
+        coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
+        c = coefficents_for_relevant_interval
+        
+        x_apex = (-c(2))/(2*c(3))
+        y_apex = evaluate_polynomial_at(c',x_apex)
+    else
+        error("Not available grade at the moment, wait for version 31.2")
+    end
+
+    plot(x_apex,y_apex,'bo')
 end
 
 function calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
