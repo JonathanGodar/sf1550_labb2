@@ -112,7 +112,7 @@ end
 function average_square_error = calculate_average_square_error(actual_value,model_value)
     N = length(actual_value);
     sum_of_squares = 0;
-    for index = (1:N)
+    for index = (1:N) 
         sum_of_squares = sum_of_squares + (actual_value(index) - model_value(index))^2;
     end
 
