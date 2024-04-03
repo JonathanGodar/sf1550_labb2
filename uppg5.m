@@ -20,7 +20,7 @@ disp(["Approxiamtivt I med n = " + n + ": " + I; "Felet: " + error ; "Beräkning
 
 
 %% 5b Monte-Carlo
-N = 1e6;
+N = 1e7;
 
 x = 1:N;
 
@@ -66,6 +66,18 @@ disp(1/sqrt(N));
 disp("Faktisk fel:");
 disp(error(end));
 disp("Tid: " + time)
+
+
+
+%%
+tic;
+result = montecarlo(1e6 + 5e5);
+disp(toc);
+
+disp(result(end) - Iexact)
+
+%%
+
 % Er kod här...
 %
 function I = montecarlo(N_max)
@@ -89,6 +101,7 @@ function I = montecarlo(N_max)
     disp("sise " + size(n))
     I = size_omega ./ n .* running_sum;
 end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function I = trapets10d(n)

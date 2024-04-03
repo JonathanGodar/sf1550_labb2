@@ -1,7 +1,6 @@
 
 
 %% 4a Trapetsregeln och Simpson
-
 format long
 trap_30 = trapets(30)
 trap_60 = trapets(60)

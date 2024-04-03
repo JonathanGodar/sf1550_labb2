@@ -1,8 +1,13 @@
 %% Interpolation
 
+% Exact values
+x_for_impact_exact = 45.672165348119279;
+x_apex_exact = 25.325686838352507;
+y_apex_exact = 16.774321348826987;
+
 h = 0.25; % Får ej ändras i koden nedan
 
-% Er kod här...
+format long
 [t,x,y,vx,vy] = kastbana(h);
 x=x';
 y=y';
@@ -14,18 +19,68 @@ degree = 1;
 coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
 
-calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
-calculate_and_plot_apex(y, coefficient_matrix, degree)
+x_impact= calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
+apex = calculate_and_plot_apex(y, coefficient_matrix, degree)
 
+format long
+disp("x-koord för nedslag")
+disp(x_impact)
+disp("x och y för apex")
+disp(apex)
+disp("fel i x för nedslag")
+disp(abs(x_impact - x_for_impact_exact))
+disp("fel i x,y för apex")
+disp(abs(apex - [x_apex_exact; y_apex_exact]))
 %% Kvadratisk interpolation
 figure(2)
 degree = 2;
 coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
-calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
-calculate_and_plot_apex(y, coefficient_matrix, degree)
+x_impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
+apex = calculate_and_plot_apex(y, coefficient_matrix, degree)
+
+disp("x-koord för nedslag")
+disp(x_impact)
+disp("x och y för apex")
+disp(apex)
+disp("fel i x för nedslag")
+disp(abs(x_impact - x_for_impact_exact))
+disp("fel i x,y för apex")
+disp(abs(apex - [x_apex_exact; y_apex_exact]))
 
 
+%% Testing correctness
+h = 0.25;
+x_apexes_lin_abs_error = [];
+degree = 1;
+for i = 1:10
+    h = h/2;
+    [t,x,y,vx,vy] = kastbana(h);
+    x=x';
+    y=y';
+    coefficient_matrix = piecewise_interpolation(x, y, degree);
+    apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
+    x_apex = apex(1);
+    x_apexes_lin_abs_error = [x_apexes_lin_abs_error; abs(x_apex_exact - x_apex)];
+end
+
+x_apexes_quad_abs_error  = [];
+degree = 2;
+h = 0.25;
+for i = 1:10
+    h = h/2;
+    [t,x,y,vx,vy] = kastbana(h);
+    x=x';
+    y=y';
+    coefficient_matrix = piecewise_interpolation(x, y, degree);
+    apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
+    x_apex = apex(1);
+    x_apexes_quad_abs_error = [x_apexes_quad_abs_error; abs(x_apex_exact - x_apex)];
+end
+
+erorr_line = rdivide(abs(x_apexes_lin_abs_error(1:end-1)), x_apexes_lin_abs_error(2:end))
+error_quad = rdivide(x_apexes_quad_abs_error(1:end-1), x_apexes_quad_abs_error(2:end))
+h = 0.25;
 %%
 
 lower_x = 1;
@@ -44,6 +99,7 @@ hold on
 
 coeff = piecewise_interpolation(x_points, y_points, grad);
 plot_interpolation(x_points, coeff, grad)
+
 %%
 
 % c_1, c_2 * x, c_3 *x^2 ...
@@ -96,7 +152,7 @@ function plot_interpolation(x_points, coefficent_matrix, grad)
     end
 end
 
-function calculate_and_plot_apex(y_points, coefficent_matrix, grad)
+function [apex] = calculate_and_plot_apex(y_points, coefficent_matrix, grad)
     for index = (1:size(y_points,2)-1)
         if y_points(index) >= y_points(index+1)
             indexs_for_impact = index;
@@ -109,14 +165,17 @@ function calculate_and_plot_apex(y_points, coefficent_matrix, grad)
         c = coefficents_for_relevant_interval;
         x_apex = (y_points(index) - c(1))/c(2);
         y_apex = y_points(index);
+        
+        apex = [x_apex; y_apex];
     elseif grad == 2
-        polynomial_index = floor((index-1)/ 2) + 1
+        polynomial_index = floor((index-1)/ 2) + 1;
     
         coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
         c = coefficents_for_relevant_interval
         
-        x_apex = (-c(2))/(2*c(3))
-        y_apex = evaluate_polynomial_at(c',x_apex)
+        x_apex = (-c(2))/(2*c(3));
+        y_apex = evaluate_polynomial_at(c',x_apex);
+        apex = [x_apex; y_apex];
     else
         error("Not available grade at the moment, wait for version 31.2")
     end
@@ -124,7 +183,7 @@ function calculate_and_plot_apex(y_points, coefficent_matrix, grad)
     plot(x_apex,y_apex,'bo')
 end
 
-function calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
+function x_for_impact = calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
     for index = (1:size(y_points,2)-1)
         if y_points(index) >= 0 && y_points(index+1) <=0
             indexs_for_impact = index;
@@ -138,12 +197,10 @@ function calculate_and_plot_x_for_impact(y_points, coefficent_matrix, grad)
         x_for_impact = -c(1)/c(2);
     elseif grad == 2
         polynomial_index = floor((index-1)/ 2) + 1
-    
         coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
         c = coefficents_for_relevant_interval
-        
         % c(3) kommer alltid vara negativ på grund av gravitation :) (hänvisning: mekanik)
-        x_for_impact = ((-c(2)-sqrt(c(2)^2-4*c(3)*c(1)))/(2*c(3)))
+        x_for_impact = ((-c(2)-sqrt(c(2)^2-4*c(3)*c(1)))/(2*c(3)));
     else
         error("Not available grade at the moment, wait for version 31.2")
     end
