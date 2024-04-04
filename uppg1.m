@@ -64,6 +64,13 @@ table = [table; 4 eiffel_data_row];
 
 disp(table);
 
+%% Utredning
+tau = 1e-10;
+load eiffel4
+[eig_val, iter] = potens(A, tau);
+disp([eig_val, iter])
+
+
 %% 1d -- Beräkning av andra egenvärden
 
 load eiffel1
@@ -75,7 +82,6 @@ for sigma = sigmaArray
 	disp([sigma, closestEigenvalueToSigma, iter])
 end
 
-% disp(sort(eig(A)))
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 

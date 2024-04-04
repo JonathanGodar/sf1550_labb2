@@ -61,7 +61,7 @@ for i = 1:10
     coefficient_matrix = piecewise_interpolation(x, y, degree);
     apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
     x_apex = apex(1);
-    x_apexes_lin_abs_error = [x_apexes_lin_abs_error; abs(x_apex_exact - x_apex)];
+    x_apexes_lin_abs_error = [x_apexes_lin_abs_error; x_apex];
 end
 
 x_apexes_quad_abs_error  = [];
@@ -77,10 +77,15 @@ for i = 1:10
     x_apex = apex(1);
     x_apexes_quad_abs_error = [x_apexes_quad_abs_error; abs(x_apex_exact - x_apex)];
 end
+top = x_apexes_lin_abs_error(1:end-1)- x_apexes_lin_abs_error(2:end)
+bottom = x_apexes_lin_abs_error(2:end-1)- x_apexes_lin_abs_error(3:end)
 
-erorr_line = rdivide(abs(x_apexes_lin_abs_error(1:end-1)), x_apexes_lin_abs_error(2:end))
-error_quad = rdivide(x_apexes_quad_abs_error(1:end-1), x_apexes_quad_abs_error(2:end))
-h = 0.25;
+
+rdivide(top(1:end-1),bottom)
+
+% erorr_line = rdivide(abs(x_apexes_lin_abs_error(1:end-1)), x_apexes_lin_abs_error(2:end))
+% error_quad = rdivide(x_apexes_quad_abs_error(1:end-1), x_apexes_quad_abs_error(2:end))
+% h = 0.25;
 %%
 
 lower_x = 1;

@@ -53,6 +53,7 @@ disp(["d_0 = ";"d_1 = ";"d_2 = ";"d_3 = ";"L = "] + X);
 
 %%
 
+
 function F_vec = F(X, y)
     F_vec = [];
     for t = 1:size(y,2)
