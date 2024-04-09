@@ -8,24 +8,26 @@ t = 1:1:N;
 % Er kod här...
 
 figure(1)
-f = @(x) [1 x];
-X = plot_and_check_model(t, U, f);
-disp(["c_0 = ";"c_1 = "] + X);
+f_linear = @(x) [1 x];
+coeffs_linear = plot_and_check_model(t, U, f_linear);
+title("Linjär anpassning/Linjär anpassning fel");
+disp(["c_0 = ";"c_1 = "] + coeffs_linear);
 
 %% 3b Linjär + periodisk modell
-% coefficients = least_square_custom(t, X, 1);
 % Perioden ser ut att vara ca 430
 figure(2)
 L = 430;
-f = @(x) [1 x sin(2* pi * x / L) cos(2*pi * x /L)];
-X = [plot_and_check_model(t, U, f); L];
-disp(["d_0 = ";"d_1 = ";"d_2 = ";"d_3 = "; "L = "] + X);
+f_periodical = @(x) [1 x sin(2* pi * x / L) cos(2*pi * x / L)];
+coeffs_periodical = [plot_and_check_model(t, U, f_periodical); L];
+title("Periodisk anpassning med gissning för L / Fel");
+disp(["d_0 = ";"d_1 = ";"d_2 = ";"d_3 = "; "L = "] + coeffs_periodical);
 
 
 %% 3c Icke-linjär modell
 % Er kod här...
 
 figure(3)
+X = coeffs_periodical;
 Xprev = 10 + X;
 tau = 1e-8;
 
@@ -40,17 +42,22 @@ f = @(x) [1 x sin(2* pi * x / L) cos(2*pi * x /L)];
 model = make_model(X,U);
 
 error = model' - U;
+subplot(2, 1, 1);
 grid on
 plot(t, U);
 
 hold on
 plot(t, model);
 
+subplot(2, 1, 2);
 plot(t, error);
-
+title("Periodisk anpassning med beräkning av L/Fel")
 disp("Medelkvadratfelet = " + calculate_average_square_error(model,U));
 disp(["d_0 = ";"d_1 = ";"d_2 = ";"d_3 = ";"L = "] + X);
 
+figure(4);
+plot(t, U, t, model, t, evaluate_function_at(t, f_linear, coeffs_linear), t, evaluate_function_at(t, f_periodical, coeffs_periodical(1:end-1)));
+legend("$", "Model 3", "Model 1", "Model 2");
 %%
 
 
@@ -80,20 +87,26 @@ function F_jacobian= J(X, y)
 end
 
 
+function y = evaluate_function_at(x_values, f, coeffs) 
+    y = [];
+    for x = x_values 
+        y = [y, f(x) * coeffs];
+    end
+end
+
 function coeffs = plot_and_check_model(x_values, y_values, f)
     coeffs = least_square(x_values, y_values, f);
 
-    model = [];
-    for x = x_values 
-        model = [model, f(x)*coeffs];
-    end
-    % model = f_excplict(y_values)
+    model = evaluate_function_at(x_values, f, coeffs);
     error = model - y_values;
 
+    subplot(2, 1, 1);
     grid on
     plot(x_values, y_values);
     hold on
     plot(x_values, model);
+    
+    subplot(2, 1, 2);
     plot(x_values, error);
     
     MSE = calculate_average_square_error(model,y_values);

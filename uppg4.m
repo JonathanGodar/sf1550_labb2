@@ -2,11 +2,11 @@
 
 %% 4a Trapetsregeln och Simpson
 format long
-trap_30 = trapets(30)
-trap_60 = trapets(60)
+trap_30 = trapets(30);
+trap_60 = trapets(60);
 
-simp_30 = simpson(30)
-simp_60 = simpson(60)
+simp_30 = simpson(30);
+simp_60 = simpson(60);
 
 format long
 disp(["intervall\Metod" "Trapets" "Simpson"; 
@@ -19,7 +19,7 @@ disp(["intervall\Metod" "Trapets" "Simpson";
 %1
 ref = simpson(1e5);
 err_trap = [];
-x_max = 1000
+x_max = 1000;
 
 x_trap = 1:x_max;
 for n = x_trap
@@ -33,18 +33,16 @@ for n = x_simp
 end
 
 R = 3;
-loglog(R*x_trap.^-1,err_trap);
-hold on;
-loglog(R*x_simp.^-1,err_simp);
-grid on
 
 x_comp_trap = linspace(R/x_trap(1),R/x_trap(end),100);
 y_comp_trap = x_comp_trap.^2 / x_comp_trap(1) * err_trap(1);
-loglog(x_comp_trap, y_comp_trap)
 
 x_comp_simp = linspace(R/x_simp(1),R/x_simp(end),100);
 y_comp_simp = x_comp_simp.^4 / x_comp_simp(1) * err_simp(1);
-loglog(x_comp_simp, y_comp_simp)
+
+loglog(R*x_trap.^-1,err_trap, R*x_simp.^-1,err_simp, x_comp_trap, y_comp_trap, x_comp_simp, y_comp_simp);
+grid on
+legend("Error trap", "Error simp", "Hjälplinje lut 2", "Hjälplinje lut 4")
 % y1 = x.^3 / sizeList(1)^3 * timeList(1); % +   % timeList(1);
 % y2 = x.^2 / sizeList(1)^2 * timeList(1);
 % y3 = x.^2.475 / sizeList(1)^2.475 * timeList(1);
@@ -53,7 +51,7 @@ loglog(x_comp_simp, y_comp_simp)
 %% 2
 R=3;
 
-series_of_n = 60:2:80
+series_of_n = 60:2:80;
 ratio_trap = [];
 for n = series_of_n 
     ratio = (trapets(n)-trapets(2*n))/(trapets(2*n)-trapets(4*n));
@@ -69,11 +67,12 @@ disp(["Trapets" "Simpson";
 			ratio_trap ratio_simp]);
 
 %% 4c Trapetsregeln i 2D
+disp("Alternativ design på glaset")
 
-trap_20 = trapets2d(1000);
+trap_20 = trapets2d(20);
 disp("Volym = " + trap_20)
 
-series_of_n = 60:2:80
+series_of_n = 60:2:80;
 ratio_trap = [];
 for n = series_of_n 
     ratio = (trapets2d(n)-trapets2d(2*n))/(trapets2d(2*n)-trapets2d(4*n));

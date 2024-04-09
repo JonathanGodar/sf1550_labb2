@@ -20,7 +20,7 @@ disp(["Approxiamtivt I med n = " + n + ": " + I; "Felet: " + error ; "Beräkning
 
 
 %% 5b Monte-Carlo
-N = 1e7;
+N = 1e6;
 
 x = 1:N;
 
@@ -28,7 +28,7 @@ errors = [];
 list_of_list_of_approximated_integrals = [];
 time = [];
 for i = 1:5
-    tic
+    tic;
     approximated_integrals = montecarlo(N);
     time = [time toc];
     list_of_approximated_integrals = approximated_integrals(1:N);
@@ -43,13 +43,13 @@ average_error = sum(errors,2)/5;
 
 figure(1);
 plot(x, list_of_list_of_approximated_integrals);
-axis([20 N 6.22 6.24])
+axis([20 N 6.22 6.24]);
 
 figure(2);
 loglog(x, errors);
 hold on
 loglog(x, x.^-.5 / x(end)^-.5 * average_error(end), "--", 'LineWidth', 8);
-axis([20 N 1e-5 1])
+axis([20 N 1e-5 1]);
 % loglog(x, x.^-.5);
 figure(3)
 loglog(x,average_error);
@@ -67,23 +67,10 @@ disp("Faktisk fel:");
 disp(error(end));
 disp("Tid: " + time)
 
-
-
-%%
-tic;
-result = montecarlo(1e6 + 5e5);
-disp(toc);
-
-disp(result(end) - Iexact)
-
-%%
-
-% Er kod här...
-%
+%1
 function I = montecarlo(N_max)
     f = @(x) exp(prod(x));
     points = rand(10, N_max) * 1.2;
-    size(points)
 
     size_omega = 1.2^10;
     
@@ -97,8 +84,6 @@ function I = montecarlo(N_max)
     end
     
     n = 1:N_max;
-    disp("Run " + size(running_sum))
-    disp("sise " + size(n))
     I = size_omega ./ n .* running_sum;
 end
 
