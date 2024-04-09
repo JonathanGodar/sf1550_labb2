@@ -8,10 +8,12 @@ eigen_values = diag(eigen_values_matrix);
 [eigen_values, sort_order] = sort(eigen_values);
 
 for i = 1:4 
-	figure(i);
+	figure(i);z
 	vector_idx = sort_order(i);
 	y = eigen_vectors_matrix(:, vector_idx)*3; 
+	eigen_value = eigen_values(i);
 	trussplot(xnod + y(1:2:end), ynod + y(2:2:end), bars);
+	disp("Frekvensen för egenmod " + i + " är " + sqrt(eigen_value)/(2*pi) + " hz")
 end
 
 %% Animering
@@ -19,28 +21,7 @@ y = eigen_vectors_matrix(:, sort_order(5));
 trussanim(xnod, ynod, bars, y*1);
 %% 1c -- Beräkning av största och minsta egenvärdena
 tau = 1e-10;
-load eiffel1;
-[mini_mu_1, mini_iter_1] = potens(A, tau);
-[maxi_mu_1, maxi_iter_1] = inverspotens(A, tau);
 
-
-[eigen_values_matrix, eigen_vectors_matrix] = eig(A);
-eigen_values = diag(eigen_vectors_matrix);
-[eigen_values, sort_order] = sort(eigen_values);
-
-load eiffel2;
-[mini_mu_2, mini_iter_2] = potens(A, tau);
-[maxi_mu_2, maxi_iter_2] = inverspotens(A, tau);
-
-load eiffel3;
-[mini_mu_3, mini_iter_3] = potens(A, tau);
-[maxi_mu_3, maxi_iter_3] = inverspotens(A, tau);
-
-load eiffel4;
-[mini_mu_4, mini_iter_4] = potens(A, tau);
-[maxi_mu_4, maxi_iter_4] = inverspotens(A, tau);
-
-%% 
 load eiffel1
 disp("Eiffel 1");
 eiffel_data_row = create_data_row(A, tau);
@@ -63,12 +44,6 @@ eiffel_data_row = create_data_row(A, tau);
 table = [table; 4 eiffel_data_row];
 
 disp(table);
-
-%% Utredning
-tau = 1e-10;
-load eiffel4
-[eig_val, iter] = potens(A, tau);
-disp([eig_val, iter])
 
 
 %% 1d -- Beräkning av andra egenvärden
@@ -125,9 +100,23 @@ function [mu, iter] = inverspotens(A,tau)
 %  mu - minsta egenvärdet till A (skalär)
 %  iter - antal iterationer som använts (skalär)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	y =  rand(size(A, 2), 1); %ones(size(A, 2),1) * 4;
+	A = sparse(A);
+	[L, U] = lu(A);
 
-	A = inv(A);
-	[mu, iter] = potens(A, tau);
+	iter = 0;
+	mu = 0;
+	mu_prev = tau * 20;
+
+	while abs(mu - mu_prev) > tau
+		iter = iter + 1;
+		v = L\y;
+		v = U\v;
+		mu_prev = mu;
+		mu = y' * v;
+		y = v / norm(v);
+	end
+
 	mu = 1/mu;
 end
 

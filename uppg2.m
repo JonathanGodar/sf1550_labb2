@@ -31,6 +31,7 @@ disp("fel i x för nedslag")
 disp(abs(x_impact - x_for_impact_exact))
 disp("fel i x,y för apex")
 disp(abs(apex - [x_apex_exact; y_apex_exact]))
+
 %% Kvadratisk interpolation
 figure(2)
 degree = 2;
@@ -48,10 +49,9 @@ disp(abs(x_impact - x_for_impact_exact))
 disp("fel i x,y för apex")
 disp(abs(apex - [x_apex_exact; y_apex_exact]))
 
-
 %% Testing correctness
 h = 0.25;
-x_apexes_lin_abs_error = [];
+x_impacts_lin = [];
 degree = 1;
 for i = 1:10
     h = h/2;
@@ -59,12 +59,11 @@ for i = 1:10
     x=x';
     y=y';
     coefficient_matrix = piecewise_interpolation(x, y, degree);
-    apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
-    x_apex = apex(1);
-    x_apexes_lin_abs_error = [x_apexes_lin_abs_error; x_apex];
+    impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree);
+    x_impacts_lin = [x_impacts_lin; impact];
 end
 
-x_apexes_quad_abs_error  = [];
+x_impacts_quad  = [];
 degree = 2;
 h = 0.25;
 for i = 1:10
@@ -73,19 +72,20 @@ for i = 1:10
     x=x';
     y=y';
     coefficient_matrix = piecewise_interpolation(x, y, degree);
-    apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
-    x_apex = apex(1);
-    x_apexes_quad_abs_error = [x_apexes_quad_abs_error; abs(x_apex_exact - x_apex)];
+    impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree);
+    x_impacts_quad = [x_impacts_quad; impact];
 end
-top = x_apexes_lin_abs_error(1:end-1)- x_apexes_lin_abs_error(2:end)
-bottom = x_apexes_lin_abs_error(2:end-1)- x_apexes_lin_abs_error(3:end)
-
-
+top = x_impacts_lin(1:end-1)- x_impacts_lin(2:end)
+bottom = x_impacts_lin(2:end-1)- x_impacts_lin(3:end);
 rdivide(top(1:end-1),bottom)
 
-% erorr_line = rdivide(abs(x_apexes_lin_abs_error(1:end-1)), x_apexes_lin_abs_error(2:end))
-% error_quad = rdivide(x_apexes_quad_abs_error(1:end-1), x_apexes_quad_abs_error(2:end))
-% h = 0.25;
+top_quad = x_impacts_quad(1:end-1)- x_impacts_quad(2:end)
+bottom_quad = x_impacts_quad(2:end-1)- x_impacts_quad(3:end);
+rdivide(top_quad(1:end-1),bottom_quad)
+
+x_impacts_lin_error = abs(x_for_impact_exact - x_impacts_lin)
+x_impact_quad_error = abs(x_impacts_quad - x_for_impact_exact)
+
 %%
 
 lower_x = 1;
