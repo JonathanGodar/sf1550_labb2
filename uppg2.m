@@ -14,15 +14,17 @@ y=y';
 
 %% Linjär interpolation
 figure(1)
+title("Linjär")
 degree = 1;
 
 coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
 
-x_impact= calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
-apex = calculate_and_plot_apex(y, coefficient_matrix, degree)
+x_impact= calculate_and_plot_x_for_impact(y, coefficient_matrix, degree);
+apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
 
 format long
+disp("Linjär")
 disp("x-koord för nedslag")
 disp(x_impact)
 disp("x och y för apex")
@@ -33,13 +35,14 @@ disp("fel i x,y för apex")
 disp(abs(apex - [x_apex_exact; y_apex_exact]))
 
 %% Kvadratisk interpolation
-figure(2)
+figure(2);
+title("Kvadratisk");
 degree = 2;
 coefficient_matrix = piecewise_interpolation(x, y, degree);
 plot_interpolation(x, coefficient_matrix, degree);
-x_impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree)
-apex = calculate_and_plot_apex(y, coefficient_matrix, degree)
-
+x_impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree);
+apex = calculate_and_plot_apex(y, coefficient_matrix, degree);
+disp("Kvadratisk")
 disp("x-koord för nedslag")
 disp(x_impact)
 disp("x och y för apex")
@@ -75,37 +78,9 @@ for i = 1:10
     impact = calculate_and_plot_x_for_impact(y, coefficient_matrix, degree);
     x_impacts_quad = [x_impacts_quad; impact];
 end
-top = x_impacts_lin(1:end-1)- x_impacts_lin(2:end)
-bottom = x_impacts_lin(2:end-1)- x_impacts_lin(3:end);
-rdivide(top(1:end-1),bottom)
-
-top_quad = x_impacts_quad(1:end-1)- x_impacts_quad(2:end)
-bottom_quad = x_impacts_quad(2:end-1)- x_impacts_quad(3:end);
-rdivide(top_quad(1:end-1),bottom_quad)
 
 x_impacts_lin_error = abs(x_for_impact_exact - x_impacts_lin)
 x_impact_quad_error = abs(x_impacts_quad - x_for_impact_exact)
-
-%%
-
-lower_x = 1;
-upper_x = 5;
-grad = 1;
-
-x_points = linspace(lower_x, upper_x, 21);
-y_points = exp(x_points);
-
-x_exact = linspace(lower_x, upper_x, 1000);
-y_exact = exp(x_exact);
-
-plot(x_exact, y_exact+10)
-hold on
-
-
-coeff = piecewise_interpolation(x_points, y_points, grad);
-plot_interpolation(x_points, coeff, grad)
-
-%%
 
 % c_1, c_2 * x, c_3 *x^2 ...
 function [coeffs] = interpolate(x_points, y_points, grad) 
@@ -153,7 +128,7 @@ function plot_interpolation(x_points, coefficent_matrix, grad)
         group_start = (index-1) * grad + 1;
         group_end = index*grad + 1;
         x = linspace(x_points(group_start), x_points(group_end), 100);
-        plot(x,evaluate_polynomial_at(coefficent_matrix(:,index)',x))
+        plot(x,evaluate_polynomial_at(coefficent_matrix(:,index)',x));
     end
 end
 
@@ -176,7 +151,7 @@ function [apex] = calculate_and_plot_apex(y_points, coefficent_matrix, grad)
         polynomial_index = floor((index-1)/ 2) + 1;
     
         coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
-        c = coefficents_for_relevant_interval
+        c = coefficents_for_relevant_interval;
         
         x_apex = (-c(2))/(2*c(3));
         y_apex = evaluate_polynomial_at(c',x_apex);
@@ -201,9 +176,9 @@ function x_for_impact = calculate_and_plot_x_for_impact(y_points, coefficent_mat
         c = coefficents_for_relevant_interval;
         x_for_impact = -c(1)/c(2);
     elseif grad == 2
-        polynomial_index = floor((index-1)/ 2) + 1
+        polynomial_index = floor((index-1)/ 2) + 1;
         coefficents_for_relevant_interval = coefficent_matrix(:,polynomial_index);
-        c = coefficents_for_relevant_interval
+        c = coefficents_for_relevant_interval;
         % c(3) kommer alltid vara negativ på grund av gravitation :) (hänvisning: mekanik)
         x_for_impact = ((-c(2)-sqrt(c(2)^2-4*c(3)*c(1)))/(2*c(3)));
     else

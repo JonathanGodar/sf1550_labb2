@@ -8,7 +8,8 @@ eigen_values = diag(eigen_values_matrix);
 [eigen_values, sort_order] = sort(eigen_values);
 
 for i = 1:4 
-	figure(i);z
+	figure(i);
+	title("Egenmod " + i);
 	vector_idx = sort_order(i);
 	y = eigen_vectors_matrix(:, vector_idx)*3; 
 	eigen_value = eigen_values(i);
